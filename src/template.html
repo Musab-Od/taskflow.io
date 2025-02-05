@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./CSS/normalize.css">
+    <link rel="stylesheet" href="./CSS/all.min.css">
+    <link rel="stylesheet" href="./CSS/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@400..700&family=Funnel+Sans:ital,wght@0,300..800;1,300..800&family=New+Amsterdam&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Playwrite+DE+VA+Guides&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <title>Task Flow</title>
+</head>
+<body>
+    <header class="header">
+        <button class="previous-arrow hidden">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span></span>
+        </button>
+        <div class="logo">
+            <i class="fa-solid fa-check-double"></i>
+            <p>Task Flow</p>
+        </div>
+        <button class="dark-mode-toggle" id="dark-mode-toggle">
+            <div class="ball" id="ball">
+                <i class="fa-solid fa-sun" id="icon"></i>
+            </div>
+        </button>
+    </header>
+    <!-- Page Layout  -->
+    <div class="page-layout">
+        <!-- NavBar  -->
+        <nav class="sidebar" id="sidebar">
+            <ul class="sidebar-lists">
+                <li>
+                    <button class="sidebar-button" id="tasks">
+                        <div>
+                            <i class="fa-solid fa-house"></i>
+                            <span class="name">Tasks</span>
+                        </div>
+                        <span class="count"></span>
+                    </button>
+                </li>
+                <li>
+                    <button class="sidebar-button" id="today">
+                        <div>
+                            <i class="fa-regular fa-clock"></i>
+                            <span class="name">Today</span>
+                        </div>
+                        <span class="count"></span>
+                    </button>
+                </li>
+                <li>
+                    <button class="sidebar-button" id="important">
+                        <div>
+                            <i class="fa-regular fa-star"></i>
+                            <span class="name">Important</span>
+                        </div>
+                        <span class="count"></span>
+                    </button>
+                </li>
+                <li>
+                    <button class="sidebar-button" id="planned">
+                        <div>
+                            <i class="fa-solid fa-list-check"></i>
+                            <span class="name">Planned</span>
+                        </div>
+                        <span class="count"></span>
+                    </button>
+                </li>
+            </ul>
+            <div class="list-container">
+                <ul class="sidebar-custom-lists">
+                </ul>
+            </div>
+            <div class="list-context-menu hidden">
+                <button class="rename-list">
+                    <i class="fa-solid fa-pen"></i>
+                    Rename List
+                </button>
+                <button class="delete-list">
+                    <i class="fa-solid fa-trash"></i>
+                    Delete List
+                </button>
+            </div>
+            <button class="add-list" id="add-list">
+                <i class="fa-solid fa-plus"></i>
+                <span>New List</span>
+            </button>
+        </nav>
+        <!-- Main Section  -->
+        <main class="tasks" id="main">
+            <div class="title">
+            </div>
+            <div class="main-layout">
+                <section class="uncompleted-section">
+                    <ul class="tasks-container">
+                    </ul>
+                </section>
+                <section class="completed-section hidden">
+                    <button id="toggle-completed" class="toggle-completed">
+                        <i class="fa-solid fa-arrow-down"></i>
+                        Completed
+                        <span class="num-of-task-completed">0</span>
+                    </button>
+                    <ul class="tasks-container-completed">
+                    </ul>
+                </section>
+            </div>
+            <div class="add-task-container">
+                <button class="add-task" id="add-task">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add a task</span>
+                </button>
+            </div>
+        </main>
+        <!-- Options  -->
+        <div class="option hidden">
+        </div>
+    </div>
+</body>
+</html>
