@@ -18,7 +18,6 @@ class TaskOptions {
     }
 
     renderOptions(task) {
-        const currentList = this.dataManager.getListById(this.dataManager.currentListId);
         const option = document.querySelector(".option");
         const pageLayout = document.querySelector(".page-layout");
         option.classList.remove("hidden");
@@ -114,7 +113,7 @@ class TaskOptions {
         this.setupCloseOptionEvent();
         this.setupMarkImportantEvent(task);
         this.setupMarkCompleteEvent(task);
-        this.setupTaskTitleEditEvent(task); // Add this line
+        this.setupTaskTitleEditEvent(task);
         this.setupAddStepEvent(task);
         this.setupAddToMyDayEvent(task);
         this.setupAddDueDateEvent(task);
@@ -148,7 +147,6 @@ class TaskOptions {
             }
             this.ui.updateTaskDetailsInDOM(task);
             this.ui.renderSidebar();
-            // Add this line to save state
             this.dataManager.saveToStorage();
             // Update the options section without re-rendering
             const importantIcon = document.querySelector(".option-task-info .mark-important i");
@@ -166,7 +164,7 @@ class TaskOptions {
             taskTitle.classList.toggle("completed", task.isCompleted);
             this.ui.renderTasks();
             this.ui.renderSidebar();
-            this.dataManager.saveToStorage(); // Add this line
+            this.dataManager.saveToStorage();
         });
     }
 
@@ -412,10 +410,22 @@ class TaskOptions {
     setupTaskNotesEvent(task) {
         const notesTextarea = document.getElementById("task-note");
         notesTextarea.value = task.description;
+
+        // Set initial height
+        this.adjustTextareaHeight(notesTextarea);
+        
         notesTextarea.addEventListener("input", () => {
             task.updateDescription(notesTextarea.value);
             this.ui.updateTaskDetailsInDOM(task);
+            this.adjustTextareaHeight(notesTextarea);
         });
+    }
+
+    adjustTextareaHeight(textarea) {
+        // Reset height to auto to get the correct scrollHeight
+        textarea.style.height = 'auto';
+        // Set new height based on scrollHeight
+        textarea.style.height = textarea.scrollHeight + 'px';
     }
 
     setupDeleteTaskEvent(task) {

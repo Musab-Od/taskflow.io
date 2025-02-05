@@ -14,6 +14,8 @@ class UI {
         this.currentMobileView = 'lists'; // 'lists', 'tasks', 'options'
         this.setupMobileDetection();
         this.previousView = null;
+
+        this.header.loadDarkModeState();
     }
 
     static CLASS_NAMES = {

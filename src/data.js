@@ -49,6 +49,7 @@ class Task {
     }
 
     updateTitle(newTitle) {
+        if (!newTitle.trim()) throw new Error("Title cannot be empty");
         this.title = newTitle;
     }
 
@@ -100,79 +101,153 @@ class DataManager {
         this.loadFromStorage();
     }
 
-loadFromStorage() {
-    const savedData = this.storage.loadData();
-    if (savedData) {
-        const tasksMap = new Map();
+    createTutorialList() {
+        const tutorialList = this.createList("Getting Started");
+        
+        // Create tutorial tasks
+        const tasks = [
+            {
+                title: "👋 Welcome to TaskFlow!",
+                description: "This is your first task. Click on it to open the task details panel. Try marking it as complete using the checkbox!",
+            },
+            {
+                title: "⭐ Try marking tasks as Important",
+                description: "Click the star icon to mark a task as important. Important tasks appear in your Important list.",
+                isImportant: true
+            },
+            {
+                title: "📝 Add steps to break down your tasks",
+                description: "Open this task and try adding steps. Steps help you track progress on complex tasks.",
+                steps: ["Click on the task", "Click 'Add Step'", "Type your step", "Press Enter"]
+            },
+            {
+                title: "📅 Set due dates for better planning",
+                description: "Tasks with due dates appear in your Planned list. Try adding a due date to this task!",
+                dueDate: this.getTomorrowDate()
+            },
+            {
+                title: "✨ Create your first task",
+                description: "Click the 'Add Task' button at the bottom of any list to create your own task.",
+            }
+        ];
 
-        // First, create all tasks
-        savedData.lists.forEach(listData => {
-            listData.tasks.forEach(taskData => {
-                if (!tasksMap.has(taskData.id)) {
-                    const task = new Task(
-                        taskData.id,
-                        taskData.title,
-                        taskData.description,
-                        taskData.dueDate,
-                        taskData.isImportant
-                    );
-                    task.isInToday = taskData.isInToday;
-                    task.isCompleted = taskData.isCompleted;
-                    task.steps = taskData.steps.map(stepData => {
-                        const step = new Step(stepData.id, stepData.name);
-                        step.isCompleted = stepData.isCompleted;
-                        return step;
-                    });
-                    tasksMap.set(taskData.id, task);
+        // Add each task to the tutorial list
+        tasks.forEach(taskData => {
+            const task = new Task(
+                this.generateId(),
+                taskData.title,
+                taskData.description,
+                taskData.dueDate || null,
+                taskData.isImportant || false
+            );
+
+            // Add steps if present
+            if (taskData.steps) {
+                taskData.steps.forEach(stepName => {
+                    const step = new Step(this.generateId(), stepName);
+                    task.addStep(step);
+                });
+            }
+
+            // Add to appropriate lists
+            this.addTaskToList(tutorialList.id, task);
+            
+            // Handle special properties
+            if (taskData.isImportant) {
+                this.getListByName("Important").addTask(task);
+            }
+            if (taskData.dueDate) {
+                this.getListByName("Planned").addTask(task);
+            }
+        });
+
+        return tutorialList;
+    }
+
+    getTomorrowDate() {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        return tomorrow.toISOString().split('T')[0];
+    }
+
+    loadFromStorage() {
+        const savedData = this.storage.loadData();
+        if (savedData && savedData.lists && savedData.lists.length > 0) {
+            // Existing code for loading saved data
+            const tasksMap = new Map();
+
+            // First, create all tasks
+            savedData.lists.forEach(listData => {
+                listData.tasks.forEach(taskData => {
+                    if (!tasksMap.has(taskData.id)) {
+                        const task = new Task(
+                            taskData.id,
+                            taskData.title,
+                            taskData.description,
+                            taskData.dueDate,
+                            taskData.isImportant
+                        );
+                        task.isInToday = taskData.isInToday;
+                        task.isCompleted = taskData.isCompleted;
+                        task.steps = taskData.steps.map(stepData => {
+                            const step = new Step(stepData.id, stepData.name);
+                            step.isCompleted = stepData.isCompleted;
+                            return step;
+                        });
+                        tasksMap.set(taskData.id, task);
+                    }
+                });
+            });
+
+            // Create lists and assign tasks
+            this.lists = savedData.lists.map(listData => {
+                const list = new List(listData.id, listData.name, listData.isDefault);
+                list.tasks = listData.tasks.map(taskData => tasksMap.get(taskData.id));
+                return list;
+            });
+
+            // Restore special lists properly
+            const importantList = this.getListByName("Important");
+            const todayList = this.getListByName("Today");
+            const plannedList = this.getListByName("Planned");
+
+            Array.from(tasksMap.values()).forEach(task => {
+                if (task.isImportant && !importantList.tasks.includes(task)) {
+                    importantList.addTask(task);
+                }
+                if (task.isInToday && !todayList.tasks.includes(task)) {
+                    todayList.addTask(task);
+                }
+                if (task.dueDate) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const taskDueDate = new Date(task.dueDate);
+                    taskDueDate.setHours(0, 0, 0, 0);
+                    if (taskDueDate > today && !plannedList.tasks.includes(task)) {
+                        plannedList.addTask(task);
+                    }
                 }
             });
-        });
 
-        // Create lists and assign tasks
-        this.lists = savedData.lists.map(listData => {
-            const list = new List(listData.id, listData.name, listData.isDefault);
-            list.tasks = listData.tasks.map(taskData => tasksMap.get(taskData.id));
-            return list;
-        });
-
-        // Restore special lists properly
-        const importantList = this.getListByName("Important");
-        const todayList = this.getListByName("Today");
-        const plannedList = this.getListByName("Planned");
-
-        Array.from(tasksMap.values()).forEach(task => {
-            const originalList = this.lists.find(list => list.tasks.includes(task));
-
-            if (task.isImportant && !importantList.tasks.includes(task)) {
-                importantList.addTask(task);
-            }
-            if (task.isInToday && !todayList.tasks.includes(task)) {
-                todayList.addTask(task);
-            }
-            if (task.dueDate) {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const taskDueDate = new Date(task.dueDate);
-                taskDueDate.setHours(0, 0, 0, 0);
-                if (taskDueDate > today && !plannedList.tasks.includes(task)) {
-                    plannedList.addTask(task);
-                }
-            }
-        });
-
-        this.currentListId = savedData.currentListId;
-    } else {
-        // Initialize default lists
-        this.lists = [
-            new List(this.generateId(), "Tasks", true),
-            new List(this.generateId(), "Today", true),
-            new List(this.generateId(), "Important", true),
-            new List(this.generateId(), "Planned", true)
-        ];
-        this.currentListId = this.lists[0].id;
+            this.currentListId = savedData.currentListId;
+        } else {
+            // Initialize default lists
+            this.lists = [
+                new List(this.generateId(), "Tasks", true),
+                new List(this.generateId(), "Today", true),
+                new List(this.generateId(), "Important", true),
+                new List(this.generateId(), "Planned", true)
+            ];
+            
+            // Create and add tutorial list
+            const tutorialList = this.createTutorialList();
+            this.currentListId = tutorialList.id; // Set tutorial list as initial list
+            
+            // Save initial state to storage
+            this.saveToStorage();
+        }
     }
-}
-
 
     saveToStorage() {
         const dataToSave = {

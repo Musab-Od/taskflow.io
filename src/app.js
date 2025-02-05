@@ -33,9 +33,12 @@ document.querySelector('.previous-arrow').addEventListener('click', () => {
     ui.handleBackNavigation();
 });
 
-// Initial render and set default list to "Tasks"
+// Initial render and set default list
 ui.renderSidebar();
+const gettingStartedList = document.querySelector('.sidebar-custom-lists .sidebar-button');
 const defaultListButton = document.getElementById("tasks");
-if (defaultListButton) {
+if (gettingStartedList) {
+    ui.handleListClick(gettingStartedList);
+} else if (defaultListButton) {
     ui.handleListClick(defaultListButton);
 }

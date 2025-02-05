@@ -61,8 +61,8 @@ class TaskList {
                 list.tasks.includes(task) && 
                 list.id !== currentListId &&
                 ((!currentList.isDefault && list.isDefault) || 
-                 (currentList.isDefault && !list.isDefault) ||
-                 (!currentList.isDefault && !list.isDefault))
+                (currentList.isDefault && !list.isDefault) ||
+                (!currentList.isDefault && !list.isDefault))
             )
             .map(list => list.name);
 
@@ -76,7 +76,7 @@ class TaskList {
             task.toggleCompletion();
             this.ui.renderTasks();
             this.ui.renderSidebar();
-            this.dataManager.saveToStorage(); // Add this line
+            this.dataManager.saveToStorage();
 
             // Update the options panel if it's open
             const optionSection = document.querySelector(".option");
@@ -104,7 +104,6 @@ class TaskList {
             }
             this.updateTaskDetailsInDOM(task);
             this.ui.renderSidebar();
-            // Add this line to save state
             this.dataManager.saveToStorage();
 
             // Update the options panel if it's open
@@ -271,7 +270,6 @@ class TaskList {
     getTaskDetailsHTML(task) {
         const taskDetails = [];
         const currentListId = this.dataManager.currentListId;
-        const currentList = this.dataManager.getListById(currentListId);
         
         // Get all lists this task belongs to (except current list and Planned list)
         const taskLists = this.dataManager.lists

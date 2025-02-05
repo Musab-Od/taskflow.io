@@ -17,6 +17,9 @@
     --task-bg: rgba(255,255,255,0.9);
     --task-bg-hover: #ffffff;
     --task-checkbox: #ffffff;
+    --tasks-checkbox-border-color: #2d2d2d;
+    --important-checkbox-border-color: #2d2d2d;
+    --planned-checkbox-border-color: #2d2d2d;
     --toggle-completed-add-task: rgba(255,255,255,50%);
     --toggle-completed-add-task-hover: rgba(255,255,255);
     --add-task-button-text: #2d2d2d;
@@ -58,6 +61,9 @@ body.dark{
     --task-bg: #2a2a2a;
     --task-bg-hover: #363636;
     --task-checkbox: #1c1c1c;
+    --tasks-checkbox-border-color: #6b7fcf;
+    --important-checkbox-border-color: #ac395d;
+    --planned-checkbox-border-color: #166f6b;
     --toggle-completed-add-task: rgb(59, 59, 59, 50%);
     --toggle-completed-add-task-hover: rgb(59, 59, 59);
     --add-task-button-text: #6b7fcf;
@@ -628,6 +634,20 @@ main .title {
     margin-left: 5px;
 }
 
+.tasks .task-item div label span,
+.today .task-item div label span,
+.list .task-item div label span {
+    border-color: var(--tasks-checkbox-border-color);
+}
+
+.important .task-item div label span {
+    border-color: var(--important-checkbox-border-color);
+}
+
+.planned .task-item div label span {
+    border-color: var(--planned-checkbox-border-color);
+}
+
 .tasks .task-item div label input:checked + span,
 .today .task-item div label input:checked + span,
 .list .task-item div label input:checked + span {
@@ -849,6 +869,10 @@ main .title {
     transform: translate(-50%, -50%);
 }
 
+.steps-list .step-item:has(input:checked) h5 {
+    text-decoration: line-through;
+}
+
 .steps-list .step-item h5 {
     color: var(--option-font-color);
 }
@@ -965,6 +989,9 @@ main .title {
     background-color: var(--option-section-background);
     color: var(--font-color);
     border-radius: 5px;
+    min-height: 60px;
+    height: auto;
+    overflow-y: hidden; /* Hide scrollbar during resize */
 }
 
 .task-notes textarea:focus {
@@ -995,6 +1022,7 @@ main .title {
 
 .delete-task i {
     color: var(--option-font-color);
+    transition: .3s;
 }
 
 #delete-task {
@@ -1006,6 +1034,10 @@ main .title {
     background-color: var(--option-exit-button-hover);
 }
 
+#delete-task:hover i {
+    color: red;
+}
+
 /* End Delete Task  */
 /* Start Option Tasks-List  */
 
@@ -1015,11 +1047,23 @@ main .title {
     color: var(--primary-color);
 }
 
+.tasks-list .option-task-info div label span,
+.custom-list .option-task-info div label span,
+.today-list .option-task-info div label span {
+    border-color: var(--tasks-checkbox-border-color);
+}
+
 .tasks-list .option-task-info div label input:checked + span,
 .custom-list .option-task-info div label input:checked + span,
 .today-list .option-task-info div label input:checked + span {
     background: var(--primary-color);
     border-color: transparent;
+}
+
+.tasks-list .steps-list .step-item label span,
+.custom-list .steps-list .step-item label span,
+.today-list .steps-list .step-item label span {
+    border-color: var(--tasks-checkbox-border-color);
 }
 
 .tasks-list .steps-list .step-item label input:checked + span,
@@ -1054,9 +1098,17 @@ main .title {
     color: var(--important-text);
 }
 
+.important-list .option-task-info div label span {
+    border-color: var(--important-checkbox-border-color);
+}
+
 .important-list .option-task-info div label input:checked + span {
     background: var(--important-text);
     border-color: transparent;
+}
+
+.important-list .steps-list .step-item label span {
+    border-color: var(--important-checkbox-border-color);
 }
 
 .important-list .steps-list .step-item label input:checked + span {
@@ -1086,6 +1138,10 @@ main .title {
     color: var(--planned-text);
 }
 
+.planned-list .option-task-info div label span {
+    border-color: var(--planned-checkbox-border-color);
+}
+
 .planned-list .option-task-info div label input:checked + span {
     background: var(--planned-text);
     border-color: transparent;
@@ -1094,6 +1150,10 @@ main .title {
 .planned-list .steps-list .step-item label input:checked + span {
     background: var(--planned-text);
     border-color: transparent;
+}
+
+.planned-list .steps-list .step-item label span {
+    border-color: var(--planned-checkbox-border-color);
 }
 
 .planned-list .adding-step i,
