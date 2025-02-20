@@ -268,6 +268,7 @@ header {
 .list-container {
     flex-grow: 1; 
     overflow-y: auto;
+    overflow-wrap: anywhere;
     margin-top: 10px;
 }
 
@@ -363,6 +364,7 @@ main {
 
 main .title {
     margin-bottom: 25px;
+    overflow-wrap: anywhere;
 }
 
 .main-layout {
@@ -444,6 +446,7 @@ main .title {
     margin-bottom: 5px;
     font-size: 15px;
     padding: 1px;
+    overflow-wrap: anywhere;
 }
 
 .task-item div:has(input:checked) .task-info .task-name {
@@ -777,6 +780,7 @@ main .title {
 .option-task-info div {
     display: flex;
     color: var(--option-font-color);
+    overflow-wrap: anywhere;
 }
 
 .option-task-info div label {
@@ -874,12 +878,13 @@ main .title {
     transform: translate(-50%, -50%);
 }
 
-.steps-list .step-item:has(input:checked) h5 {
-    text-decoration: line-through;
-}
-
 .steps-list .step-item h5 {
     color: var(--option-font-color);
+    overflow-wrap: anywhere;
+}
+
+.steps-list .step-item:has(input:checked) h5 {
+    text-decoration: line-through;
 }
 
 .adding-step {
@@ -1071,6 +1076,12 @@ main .title {
     border-color: var(--tasks-checkbox-border-color);
 }
 
+.tasks-list .steps-list .step-input i,
+.custom-list .steps-list .step-input i,
+.today-list .steps-list .step-input i {
+    color: var(--primary-color);
+}
+
 .tasks-list .steps-list .step-item label input:checked + span,
 .custom-list .steps-list .step-item label input:checked + span,
 .today-list .steps-list .step-item label input:checked + span {
@@ -1112,6 +1123,10 @@ main .title {
     border-color: transparent;
 }
 
+.important-list .steps-list .step-input i {
+    color: var(--important-text);
+}
+
 .important-list .steps-list .step-item label span {
     border-color: var(--important-checkbox-border-color);
 }
@@ -1150,6 +1165,10 @@ main .title {
 .planned-list .option-task-info div label input:checked + span {
     background: var(--planned-text);
     border-color: transparent;
+}
+
+.planned-list .steps-list .step-input i {
+    color: var(--planned-text);
 }
 
 .planned-list .steps-list .step-item label input:checked + span {
