@@ -181,6 +181,10 @@ class Sidebar {
             
             this.renderSidebar();
             contextMenu.classList.add('hidden');
+
+            // Close the options panel if it's open
+            document.querySelector(".option").classList.add("hidden");
+            document.querySelector(".page-layout").classList.remove("option-active");
         });
 
         // Close context menu when clicking outside

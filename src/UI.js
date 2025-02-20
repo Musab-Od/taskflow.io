@@ -9,6 +9,7 @@ class UI {
         this.header = new Header();
         this.sidebar = new Sidebar(dataManager, this);
         this.taskList = new TaskList(dataManager, this);
+        this.taskList.setupContextMenu();
         this.taskOptions = new TaskOptions(dataManager, this);
         this.isMobile = window.innerWidth < 768;
         this.currentMobileView = 'lists'; // 'lists', 'tasks', 'options'

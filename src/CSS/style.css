@@ -1015,7 +1015,7 @@ main .title {
 /* End Task Notes  */
 /* Start Delete Task  */
 
-.delete-task {
+.option .delete-task {
     margin-bottom: 30px;
     display: flex;
     justify-content: space-between;
@@ -1024,27 +1024,27 @@ main .title {
     color: var(--option-font-color);
 }
 
-.delete-task p {
+.option .delete-task p {
     flex: 1;
     text-align: center;
     font-size: 14px;
 }
 
-.delete-task i {
+.option .delete-task i {
     color: var(--option-font-color);
     transition: .3s;
 }
 
-#delete-task {
+.option #delete-task {
     padding: 10px;
     transition: .3s;
 }
 
-#delete-task:hover {
+.option #delete-task:hover {
     background-color: var(--option-exit-button-hover);
 }
 
-#delete-task:hover i {
+.option #delete-task:hover i {
     color: red;
 }
 
@@ -1198,7 +1198,8 @@ main .title {
 /* End Option  Planned-list*/
 /* Start Context Menu */
 
-.list-context-menu {
+.list-context-menu,
+.task-context-menu {
     position: fixed;
     background: var(--bg-color);
     border: 1px solid var(--option-section-border-color);
@@ -1209,7 +1210,8 @@ main .title {
     z-index: 1000;
 }
 
-.list-context-menu button {
+.list-context-menu button,
+.task-context-menu button {
     width: 100%;
     padding: 8px 15px;
     text-align: left;
@@ -1219,15 +1221,18 @@ main .title {
     gap: 8px;
 }
 
-.list-context-menu button:hover {
+.list-context-menu button:hover,
+.task-context-menu button:hover {
     background-color: var(--list-color-clicked);
 }
 
-.list-context-menu.hidden {
+.list-context-menu.hidden,
+.task-context-menu.hidden {
     display: none;
 }
 
-.list-context-menu .delete-list {
+.list-context-menu .delete-list,
+.task-context-menu .delete-task {
     color: #dc3545;
 }
 

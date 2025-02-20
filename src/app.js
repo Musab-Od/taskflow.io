@@ -42,3 +42,5 @@ if (gettingStartedList) {
 } else if (defaultListButton) {
     ui.handleListClick(defaultListButton);
 }
+
+console.log(dataManager.lists);

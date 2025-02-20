@@ -94,7 +94,10 @@ class TaskOptions {
 
         // Update add to my day button state
         const addToMyDayBtn = document.querySelector('.add-to-my-day');
-        if (task.isInToday) {
+        const todayList = this.dataManager.getListByName("Today");
+        const isInToday = todayList.tasks.some(t => t.id === task.id);
+        
+        if (isInToday || task.isInToday) {
             addToMyDayBtn.classList.add('added');
             addToMyDayBtn.querySelector('.name').textContent = 'Added to My Day';
         }
@@ -309,9 +312,10 @@ class TaskOptions {
 
     setupAddToMyDayEvent(task) {
         const addToMyDayBtn = document.getElementById("add-to-my-day");
+        const todayList = this.dataManager.getListByName("Today");
+        
         addToMyDayBtn.addEventListener("click", () => {
             task.toggleMyDay();
-            const todayList = this.dataManager.getListByName("Today");
             if (task.isInToday) {
                 todayList.addTask(task);
                 addToMyDayBtn.classList.add("added");

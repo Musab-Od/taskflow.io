@@ -231,6 +231,9 @@ class DataManager {
             });
 
             this.currentListId = savedData.currentListId;
+
+            this.cleanupOutdatedTasks();
+            this.setupPeriodicCleanup();
         } else {
             // Initialize default lists
             this.lists = [
@@ -246,6 +249,8 @@ class DataManager {
             
             // Save initial state to storage
             this.saveToStorage();
+
+            this.setupPeriodicCleanup();
         }
     }
 
@@ -289,41 +294,78 @@ class DataManager {
     }
 
     createTask(listId, title, description = "", dueDate = null, isImportant = false) {
-        const task = new Task(this.generateId(), title, description, dueDate, isImportant);
         const currentList = this.getListById(listId);
         
-        // Only add to Tasks list if it's a default list
-        if (currentList.isDefault) {
+        // Create task with default properties
+        const task = new Task(this.generateId(), title, description, dueDate, isImportant);
+        
+        // Set special properties based on the list type
+        if (currentList.name === "Today") {
+            task.isInToday = true;
+        } else if (currentList.name === "Important") {
+            task.isImportant = true;
+        }
+        
+        // Only add to Tasks list if it's a default list (except Tasks list itself)
+        if (currentList.isDefault && currentList.name !== "Tasks") {
             const tasksList = this.getListByName("Tasks");
-            if (listId !== tasksList.id) {
-                tasksList.addTask(task);
-            }
+            tasksList.addTask(task);
         }
 
         // Add to current list
-        this.addTaskToList(listId, task);
-    
-        // Handle special properties
-        if (dueDate) {
+        currentList.addTask(task);
+
+        // Handle special lists based on properties
+        if (task.isImportant && currentList.name !== "Important") {
+            this.getListByName("Important").addTask(task);
+        }
+
+        if (task.isInToday && currentList.name !== "Today") {
+            this.getListByName("Today").addTask(task);
+        }
+
+        // Handle Planned list
+        if (dueDate && currentList.name !== "Planned") {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const taskDueDate = new Date(dueDate);
+            taskDueDate.setHours(0, 0, 0, 0);
+
+            // If due date is today, only add to Today list
+            if (taskDueDate.getTime() === today.getTime()) {
+                task.isInToday = true;
+                if (!this.getListByName("Today").tasks.includes(task)) {
+                    this.getListByName("Today").addTask(task);
+                }
+            }
+            // If due date is in the future, add to Planned list
+            else if (taskDueDate > today) {
+                this.getListByName("Planned").addTask(task);
+            }
+        }
+        // Special handling for tasks created directly in Planned list
+        else if (currentList.name === "Planned" && dueDate) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const taskDueDate = new Date(dueDate);
             taskDueDate.setHours(0, 0, 0, 0);
 
             if (taskDueDate.getTime() === today.getTime()) {
+                // If due date is today, move to Today list instead
                 task.isInToday = true;
                 this.getListByName("Today").addTask(task);
-            } else if (taskDueDate > today) {
-                this.getListByName("Planned").addTask(task);
+                // Remove from Planned list
+                currentList.removeTask(task.id);
+            }
+            // Keep in Planned only if due date is future
+            else if (taskDueDate <= today) {
+                // If date is past/today, don't add to Planned
+                currentList.removeTask(task.id);
             }
         }
 
-        if (isImportant) {
-            task.isImportant = true;
-            this.getListByName("Important").addTask(task);
-        }
-
         this.saveToStorage();
+        return task;
     }
 
     addTaskToList(listId, task) {
@@ -449,6 +491,61 @@ class DataManager {
 
     generateId() {
         return Date.now() + Math.random().toString(16).slice(2);
+    }
+
+    cleanupOutdatedTasks() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const todayList = this.getListByName("Today");
+        const plannedList = this.getListByName("Planned");
+
+        // Clean up Today list
+        todayList.tasks = todayList.tasks.filter(task => {
+            const taskDate = new Date();
+            taskDate.setHours(0, 0, 0, 0);
+            if (taskDate > today) {
+                task.isInToday = false;
+                return false;
+            }
+            return true;
+        });
+
+        // Clean up Planned list
+        plannedList.tasks = plannedList.tasks.filter(task => {
+            if (!task.dueDate) return false;
+            
+            const dueDate = new Date(task.dueDate);
+            dueDate.setHours(0, 0, 0, 0);
+            return dueDate >= today; // Only keep tasks where due date is today or in the future
+        });
+
+        this.saveToStorage();
+    }
+
+    setupPeriodicCleanup() {
+        // Check every hour for outdated tasks
+        setInterval(() => {
+            this.cleanupOutdatedTasks();
+        }, 3600000); // 1 hour in milliseconds
+
+        // Also check at midnight
+        const now = new Date();
+        const night = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() + 1, // tomorrow
+            0, 0, 0 // midnight
+        );
+        const msToMidnight = night.getTime() - now.getTime();
+
+        setTimeout(() => {
+            this.cleanupOutdatedTasks();
+            // Setup daily check at midnight
+            setInterval(() => {
+                this.cleanupOutdatedTasks();
+            }, 86400000); // 24 hours in milliseconds
+        }, msToMidnight);
     }
 }
 

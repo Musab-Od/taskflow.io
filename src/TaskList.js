@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { ta } from 'date-fns/locale';
 
 class TaskList {
     constructor(dataManager, ui) {
@@ -301,6 +302,53 @@ class TaskList {
         }
 
         return taskDetails.map(name => `<li>${name}</li>`).join("");
+    }
+
+    setupContextMenu() {
+        const contextMenu = document.querySelector('.task-context-menu');
+        let currentTask = null;
+
+        // Use document to ensure the event listener persists
+        document.addEventListener('contextmenu', (e) => {
+            const taskItem = e.target.closest('.task-item');
+            if (!taskItem) {
+                contextMenu.classList.add('hidden');
+                return;
+            }
+            
+            // Only handle context menu if clicked within main section
+            const mainSection = document.getElementById('main');
+            if (!mainSection.contains(taskItem)) return;
+            
+            e.preventDefault();
+            currentTask = taskItem;
+            
+            // Position the context menu
+            contextMenu.style.top = `${e.pageY}px`;
+            contextMenu.style.left = `${e.pageX}px`;
+            contextMenu.classList.remove('hidden');
+        });
+
+        // Handle delete task
+        contextMenu.querySelector('.delete-task').addEventListener('click', () => {
+            if (!currentTask) return;
+            
+            const taskId = currentTask.dataset.id;
+            this.dataManager.deleteTask(taskId);
+            
+            // Close the options panel if it's open
+            document.querySelector(".option").classList.add("hidden");
+            document.querySelector(".page-layout").classList.remove("option-active");
+            
+            this.ui.renderTasks();
+            this.ui.renderSidebar();
+            contextMenu.classList.add('hidden');
+        });
+
+        // Close context menu when clicking outside
+        document.addEventListener('click', () => {
+            contextMenu.classList.add('hidden');
+        });
     }
 }
 
