@@ -6,6 +6,8 @@ import { TaskOptions } from './TaskOptions';
 class UI {
     constructor(dataManager) {
         this.dataManager = dataManager;
+        // Add UI reference to DataManager
+        this.dataManager.setUIInstance(this);
         this.header = new Header();
         this.sidebar = new Sidebar(dataManager, this);
         this.taskList = new TaskList(dataManager, this);

@@ -290,7 +290,7 @@ header {
     color: var(--font-color);
 }
 
-.sidebar span.number {
+.sidebar span.count {
     background-color: var(--task-number-bg);
     font-size: 10px;
     border-radius: 50%;

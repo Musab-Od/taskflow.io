@@ -496,56 +496,76 @@ class DataManager {
     cleanupOutdatedTasks() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+        let needsUIUpdate = false;
 
+        // Clean up Today list
         const todayList = this.getListByName("Today");
         const plannedList = this.getListByName("Planned");
 
-        // Clean up Today list
-        todayList.tasks = todayList.tasks.filter(task => {
-            const taskDate = new Date();
-            taskDate.setHours(0, 0, 0, 0);
-            if (taskDate > today) {
-                task.isInToday = false;
-                return false;
-            }
-            return true;
-        });
+        // Store initial lengths
+        const todayTasksBefore = todayList.tasks.length;
+        const plannedTasksBefore = plannedList.tasks.length;
 
-        // Clean up Planned list
+        // Clean Today list - remove all tasks at midnight
+        todayList.tasks.forEach(task => {
+            task.isInToday = false; // Reset the flag for all tasks
+        });
+        todayList.tasks = []; // Clear the today list
+
+        // Clean Planned list - remove tasks with past due dates
         plannedList.tasks = plannedList.tasks.filter(task => {
             if (!task.dueDate) return false;
             
             const dueDate = new Date(task.dueDate);
             dueDate.setHours(0, 0, 0, 0);
-            return dueDate >= today; // Only keep tasks where due date is today or in the future
+            return dueDate >= today; // Keep only future tasks
         });
 
+        // Check if any changes were made
+        if (todayTasksBefore > 0 || plannedTasksBefore !== plannedList.tasks.length) {
+            needsUIUpdate = true;
+        }
+
         this.saveToStorage();
+        return needsUIUpdate;
     }
 
     setupPeriodicCleanup() {
-        // Check every hour for outdated tasks
-        setInterval(() => {
-            this.cleanupOutdatedTasks();
-        }, 3600000); // 1 hour in milliseconds
+        const performCleanup = () => {
+            const needsUIUpdate = this.cleanupOutdatedTasks();
+            if (needsUIUpdate && this.uiInstance) {
+                this.uiInstance.renderTasks();
+                this.uiInstance.renderSidebar();
+            }
+        };
 
-        // Also check at midnight
-        const now = new Date();
-        const night = new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate() + 1, // tomorrow
-            0, 0, 0 // midnight
-        );
-        const msToMidnight = night.getTime() - now.getTime();
+        // Perform initial cleanup when app starts
+        performCleanup();
 
-        setTimeout(() => {
-            this.cleanupOutdatedTasks();
-            // Setup daily check at midnight
-            setInterval(() => {
-                this.cleanupOutdatedTasks();
-            }, 86400000); // 24 hours in milliseconds
-        }, msToMidnight);
+        // Set up next midnight check
+        const setNextMidnightCheck = () => {
+            const now = new Date();
+            const tomorrow = new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 1,
+                0, 0, 0, 0
+            );
+            const msUntilMidnight = tomorrow - now;
+
+            setTimeout(() => {
+                performCleanup();
+                setNextMidnightCheck(); // Setup next day's check
+            }, msUntilMidnight);
+        };
+
+        // Start the midnight check cycle
+        setNextMidnightCheck();
+    }
+
+    // Add method to set UI reference
+    setUIInstance(ui) {
+        this.uiInstance = ui;
     }
 }
 

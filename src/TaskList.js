@@ -1,5 +1,4 @@
 import { format } from 'date-fns';
-import { ta } from 'date-fns/locale';
 
 class TaskList {
     constructor(dataManager, ui) {
@@ -98,10 +97,15 @@ class TaskList {
         if (task) {
             task.markAsImportant();
             const importantList = this.dataManager.getListByName("Important");
+            
             if (task.isImportant) {
                 importantList.addTask(task);
             } else {
                 importantList.removeTask(taskId);
+                // If we're in the Important list, we need to re-render
+                if (currentList.name === "Important") {
+                    this.ui.renderTasks();
+                }
             }
             this.updateTaskDetailsInDOM(task);
             this.ui.renderSidebar();
