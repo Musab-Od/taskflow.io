@@ -498,7 +498,6 @@ class DataManager {
         today.setHours(0, 0, 0, 0);
         let needsUIUpdate = false;
 
-        // Clean up Today list
         const todayList = this.getListByName("Today");
         const plannedList = this.getListByName("Planned");
 
@@ -506,23 +505,32 @@ class DataManager {
         const todayTasksBefore = todayList.tasks.length;
         const plannedTasksBefore = plannedList.tasks.length;
 
-        // Clean Today list - remove all tasks at midnight
-        todayList.tasks.forEach(task => {
-            task.isInToday = false; // Reset the flag for all tasks
-        });
-        todayList.tasks = []; // Clear the today list
+        // Only clear Today list if we're crossing midnight
+        const lastCleanupDate = localStorage.getItem(this.storage.PREFIX + 'last_cleanup');
+        const lastCleanup = lastCleanupDate ? new Date(lastCleanupDate) : null;
+        
+        if (!lastCleanup || lastCleanup.getDate() !== today.getDate()) {
+            // Clear Today list only when date changes
+            todayList.tasks.forEach(task => {
+                task.isInToday = false;
+            });
+            todayList.tasks = [];
+            
+            // Update last cleanup date
+            localStorage.setItem(this.storage.PREFIX + 'last_cleanup', today.toISOString());
+        }
 
         // Clean Planned list - remove tasks with past due dates
         plannedList.tasks = plannedList.tasks.filter(task => {
             if (!task.dueDate) return false;
-            
             const dueDate = new Date(task.dueDate);
             dueDate.setHours(0, 0, 0, 0);
-            return dueDate >= today; // Keep only future tasks
+            return dueDate >= today;
         });
 
         // Check if any changes were made
-        if (todayTasksBefore > 0 || plannedTasksBefore !== plannedList.tasks.length) {
+        if (todayTasksBefore !== todayList.tasks.length || 
+            plannedTasksBefore !== plannedList.tasks.length) {
             needsUIUpdate = true;
         }
 
